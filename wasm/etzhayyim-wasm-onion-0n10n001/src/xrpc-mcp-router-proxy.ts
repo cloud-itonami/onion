@@ -1,3 +1,20 @@
+// SVELTEKIT-BACKEND-PRESERVED: moved out of svelte/ during the cljs migration; not wired.
+//
+// Origin: wasm/etzhayyim-wasm-onion-0n10n001/svelte/src/routes/xrpc/[...path]/+server.ts
+// (byte-for-byte body below this header; only this comment block was added).
+//
+// This file imports `@sveltejs/kit` (`json`, `RequestEvent`, `RequestHandler`) and a
+// SvelteKit-generated `./$types` module, so it does not run as-is now that SvelteKit
+// (and its build output) has been removed from this app — there is no `$types` to
+// resolve and no SvelteKit runtime to invoke these exports. This migration's
+// wrangler.jsonc no longer points `main` at a SvelteKit worker bundle (see that
+// file's header comment for why), so this POST /xrpc/[...path] proxy to
+// AGENTGATEWAY_MCP_ROUTER_URL, and its OPTIONS/CORS handler, are currently inert.
+//
+// Whether to revive this endpoint (and how — e.g. as a Kotoba host capability, or
+// wired directly into src/app.ts) is an open product decision that this frontend
+// migration did not make.
+
 import { json, type RequestEvent } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 

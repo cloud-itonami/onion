@@ -1,4 +1,13 @@
 {:schema "etzhayyim.migration/v1"
  :source {:repository "etzhayyim/root" :revision "57d57fc47f4b2544f2f71e8905c279f5cdf090f4" :path "60-apps/etzhayyim-project-onion" :tree "82bc964f438da302f663b74af86ce6e92329f686" :tracked-files 15 :bytes 46308}
  :destination {:repository "etzhayyim/com-etzhayyim-app-onion"}
- :identity {:allowed-additions ["README.edn" "migration.edn"]}}
+ :identity {:allowed-additions ["README.edn" "migration.edn"]}
+ :deviations [{:date "2026-09-07"
+                :change "svelte-to-cljs-frontend-migration"
+                :removed ["wasm/etzhayyim-wasm-onion-0n10n001/svelte/"]
+                :added ["wasm/etzhayyim-wasm-onion-0n10n001/cljs/"]
+                :moved [{:from "wasm/etzhayyim-wasm-onion-0n10n001/svelte/src/routes/xrpc/[...path]/+server.ts"
+                         :to "wasm/etzhayyim-wasm-onion-0n10n001/src/xrpc-mcp-router-proxy.ts"
+                         :note "byte-for-byte body preserved, header comment prepended; not wired -- wasm/etzhayyim-wasm-onion-0n10n001/wrangler.jsonc dropped `main`"}]
+                :reason "Svelte frontend (+page.svelte status page) replaced by ClojureScript (reagent + re-frame + jp-go-dds) per repo-wide ADR-2608260900; the XRPC backend endpoint was moved, not deleted, and this migration did not decide whether to revive it"
+                :note "recorded so :identity's :allowed-additions (README.edn, migration.edn only) does not silently read as false against this migration's real file-set change"}]}

@@ -1,13 +1,40 @@
 {
+  // NOTE: this app used to be built by SvelteKit's Cloudflare adapter, which
+  // emitted both a server-rendering Worker script (`main`, previously
+  // "svelte/.svelte-kit/cloudflare/_worker.js" — a path that does not exist
+  // in this repo and never built here, since the SvelteKit toolchain was
+  // never actually wired to produce it) and a static client bundle
+  // (`assets.directory`, previously
+  // "./svelte/.svelte-kit/cloudflare/client" — the +page.svelte status
+  // page). The frontend was migrated to a plain ClojureScript (shadow-cljs +
+  // reagent + re-frame + jp-go-dds) static bundle with no server-rendering
+  // step — see cljs/. `assets.directory` now points at the cljs build
+  // output, and `APP_FRAMEWORK` records the new stack.
+  //
+  // `main` is dropped entirely (a Cloudflare Worker can be assets-only).
+  // Evidence: `src/app.ts` (untouched by this migration — it is the
+  // production kotodama-host-sdk Worker logic, exported via
+  // `createWorkerExport(...)`) was read in full and contains zero
+  // references to `ASSETS` or `env.` — it never calls
+  // `env.ASSETS.fetch(request)`, so pointing `main` at it (or at anything
+  // else in this repo) would mean nothing serves the static files. This
+  // repo's `kotodama.jsonld` separately declares a `component.wasm`
+  // (`guestLanguage: "go"`) as a distinct kotodama runtime artifact, not a
+  // Cloudflare Worker `main` candidate.
+  //
+  // This edit is UNVERIFIED: `wrangler deploy`/`wrangler dev` were not run
+  // against it. Dropping `main` means the XRPC BFF endpoint
+  // (`AGENTGATEWAY_MCP_ROUTER_URL` proxy, formerly served by SvelteKit's
+  // `/xrpc/[...path]` server route, now preserved byte-for-byte but unwired
+  // at `src/xrpc-mcp-router-proxy.ts`) is no longer in the deploy path.
   "name": "kotodama-0n10n001",
-  "main": "svelte/.svelte-kit/cloudflare/_worker.js",
   "compatibility_date": "2025-03-17",
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_als"
   ],
   "assets": {
-    "directory": "./svelte/.svelte-kit/cloudflare/client",
+    "directory": "./cljs/public",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "none"
@@ -19,7 +46,7 @@
     "APP_DESCRIPTION": "Onion — Dark Web (.onion) Page Intelligence Platform. Multi-DID site-per-DID architecture, Tor crawling via darkweb-proxy, threat classification, malak cross-actor integration.",
     "APP_DISPLAY_NAME": "Onion",
     "APP_EMBED_URL": "https://0n10n001.etzhayyim.com/?embed=1",
-    "APP_FRAMEWORK": "sveltekit-edge-bff",
+    "APP_FRAMEWORK": "cljs-reagent-re-frame-jp-go-dds",
     "APP_NANOID": "0n10n001",
     "APP_PERFORMER_TYPE": "service",
     "APP_SOURCE": "custom",
