@@ -45,7 +45,7 @@ io.github.kotoba-lang/text which nbb ignores; checkout lives at
 Diagnose read-only, fix the COLLECTOR (or its nbb classpath arg), never the
 gate; a prose note in a prior run's output .md does NOT propagate to the next
 run — the durable fix must land in jobs.json's script file or the job prompt.
-Gate/manual nbb workaround: `nbb --classpath "src:$HOME/.gftd/kotoba-lang/text/src" ...`.
+Current manual gate: `nbb --classpath "src:../../kotoba-lang/text/src" scripts/verify_source_proposal.cljk` (from the repository root). The `.cljs` command above records the 2026-09 incident; `.cljk` is the current gate entry point.
 
 ## Reading the signal
 
@@ -220,7 +220,7 @@ your job is zero NEW ones, and the unfaceted-list delta is your repair proof.
 
 ## Gate + landing
 
-- `nbb --classpath src scripts/verify_source_proposal.cljs --root . --proposal
+- `nbb --classpath "src:../../kotoba-lang/text/src" scripts/verify_source_proposal.cljk --root . --proposal
   <run-unique>.edn` — properties need `:name` + `:rationale` per entry (plain
   string); `:corpus` is accepted on the entries. Gate rescans ALL receipts
   (~630 files, takes ~30-60s in nbb; first attempt may time out at 300s —

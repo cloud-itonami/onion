@@ -45,15 +45,16 @@ with `amu check --jvm-free` + `amu test --jvm-free` + a Node-side test script
 over the host artifacts, state the suite's JVM-boundness in the report, and
 leave the suite port as its own authorized wave (skill `kbb-test-suite-fix`).
 
-Landing flow for org repos (measured working path, all main-branch):
-clone to /tmp → write the guest → check + compile locally → commit to main →
-`git push origin main` → confirm remote HEAD with
-`gh api repos/<org>/<repo>/commits/main --jq .sha`. A repo checked out at a
-detached HEAD reports `src refspec main does not match any` on push —
-`git checkout -B main <verified-sha>` first. West checkouts name the remote
-per-org (`kotoba-lang`, `net-kotobase`), NOT `origin` — `git fetch origin`
-fails with "'origin' does not appear to be a git repository"; read
-`git remote -v` first and use the org-named remote for fetch/push.
+Landing flow for org repos: create a task worktree under
+`~/github/wt/itonami-darkweb-intel/<task>` from the verified default-branch
+SHA. Keep the existing checkout and unrelated work intact. Run the required
+JVM-free checks, commit on a new unique `bot/itonami-darkweb-intel-*` task
+branch, and push only that branch. Use a reviewed pull request to land it and
+verify the merged file at the remote default branch. If a branch name already
+exists, inspect it or choose another name; never reset an existing branch or
+push directly to the default branch. West checkouts name the remote per-org
+(`kotoba-lang`, `net-kotobase`), not `origin`; inspect `git remote -v` before
+fetching.
 
 ## Migration patterns
 
@@ -190,14 +191,13 @@ Ed25519 sign/verify. Probe classpath recipe for `ed25519.sign` under kbb:
 
 ### Remote already has history (placeholder from an earlier push)
 
-```bash
-git fetch origin
-git merge origin/main --allow-unrelated-histories -X ours -m 'Merge remote placeholder'
-# -X ours only wins CONFLICTS; files that exist only on remote still land — explicitly remove superseded placeholders:
-git rm <remote-only placeholder files> && git commit && git push origin main
-```
-
-Re-check `git ls-tree -r --name-only HEAD` — placeholder `.clj` files reappear after this merge if you only relied on `-X ours`.
+Inspect the remote commits and tree before changing anything. Do not merge
+unrelated histories with `-X ours`, and do not remove remote-only files as a
+shortcut. Create a new task branch from the verified upstream default-branch
+SHA, apply only the reviewed migration changes, then open a pull request. Keep
+placeholders and unrelated remote content unless their removal is separately
+reviewed and authorized. Never push this recovery directly to the default
+branch.
 
 ### Host-adapter consolidation (repo-wide java.* sweep)
 When a repo has java.* spread across many files, do NOT patch each call site with a different workaround — create ONE adapter namespace (e.g. `<ns>.qualification-host`, `kotoba.net.jvm-host`) that owns every host primitive, and convert call sites to consume plain data from it:
@@ -502,9 +502,9 @@ An adapter repo (e.g. kotoba-net) needs a `deps.edn` at its ROOT (`{:paths ["src
 
 ### Distinguish source repos from auto-generated worktrees
 
-- **Source repos live in `~/github/com-junkasaki/orgs/`, `~/.gftd/kotoba-lang/`, `~/.codex-worktrees/`, `~/.gitlibs/libs/`**. Migrate `.clj`/`.cljc` files in these locations.
+- **Source repos live in `~/github/com-junkawasaki/orgs/`, `~/.gftd/kotoba-lang/`, `~/.codex-worktrees/`, `~/.gitlibs/libs/`**. Migrate `.clj`/`.cljc` files in these locations.
 - **Auto-generated worktrees live in `~/.gftd/worktrees/`**. These are temporary/build artifacts (e.g., `kotoba-cli-build-bot/`, `kotoba-cli-build-verifier/`). **DO NOT migrate** `.clj`/`.cljc` files here — they will be regenerated.
-- **Identify target directories first**: `find ~/github/com-junkasaki/orgs -type f -name '*.clj'` vs `find ~/.gftd/worktrees -type f -name '*.clj'`.
+- **Identify target directories first**: `find ~/github/com-junkawasaki/orgs -type f -name '*.clj'` vs `find ~/.gftd/worktrees -type f -name '*.clj'`.
 
 ### File selection rules
 
