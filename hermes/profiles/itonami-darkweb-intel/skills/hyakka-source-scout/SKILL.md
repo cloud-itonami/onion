@@ -175,15 +175,7 @@ on whatever branch is checked out — mid-run, HEAD moved from detached
 origin/main to the resident's commits (4df4d39), and again 2026-09-05
 (c87fe77 → sibling's bot/gp-source-20260905-ofac-fr checkout). After
 every baseline step, re-check `git branch --show-current` + `git rev-parse
-HEAD`. When the checkout moves under you, do NOT touch it — create your
-own linked worktree off origin/main (`git worktree add
-~/.gftd/worktrees/<name> <sha>`), symlink the parent's node_modules in
-(`ln -s`), branch there (`git checkout -b bot/...`), and do all edit/
-gate/test/commit/push work there. Sibling scout jobs edit the same
-config — patch, don't rewrite; the >2000-line patch-tool limit on the
-config means edits go through a python3 file script (never a heredoc).
-rm of NAMED temp files (rm -f scripts/tmp_*.sh) is allowed; rm -rf is
-not.
+HEAD`. When the checkout moves under you, leave it untouched and create a task worktree at `~/github/wt/itonami-darkweb-intel/<task>/repos/network-awai/app-hyakka` from the verified `origin/main` SHA with a new unique `bot/source-scout-*` branch. Keep the sibling `repos/kotoba-lang` path linked to `~/github/kotoba-lang` so the declared relative dependency paths resolve; link `node_modules` only after verifying its source path. Do all edits and gates in the task worktree. Sibling scout jobs edit the same config, so patch rather than rewrite it. Preserve the shared checkout, existing branches, and worktree contents; do not reset, prune, or remove them as recovery.
 
 ## Finding zero-source connector kinds + restoring dropped catalog entries (2026-09-05 run, PR #482)
 
